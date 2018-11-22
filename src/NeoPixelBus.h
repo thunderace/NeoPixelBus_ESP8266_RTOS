@@ -85,6 +85,10 @@ License along with NeoPixel.  If not, see
 #include "internal/NeoAvrMethod.h"
 #include "internal/DotStarAvrMethod.h"
 
+#elif defined(CONFIG_TARGET_PLATFORM_ESP8266)
+
+#include "internal/NeoEsp8266RtosDmaMethod.h"
+
 #else
 #error "Platform Currently Not Supported, please add an Issue at Github/Makuna/NeoPixelBus"
 #endif
