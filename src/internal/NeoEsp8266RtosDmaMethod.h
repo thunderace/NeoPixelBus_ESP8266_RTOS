@@ -1,14 +1,9 @@
 /*-------------------------------------------------------------------------
 NeoPixel library helper functions for Esp8266.
 
-
-Written by Michael C. Miller.
-Thanks to g3gg0.de for porting the initial DMA support which lead to this.
-Thanks to github/cnlohr for the original work on DMA support, which opend
-all our minds to a better way (located at https://github.com/cnlohr/esp8266ws2812i2s).
-
-I invest time and resources providing this open source code,
-please support me by dontating (see https://github.com/Makuna/NeoPixelBus)
+RTOS port written by THK
+Based on https://github.com/espressif/ESP8266_MP3_DECODER/blob/master/mp3/driver/i2s_freertos.c
+-------------------------------------------------------------------------
 
 -------------------------------------------------------------------------
 This file is part of the Makuna/NeoPixelBus library.
@@ -155,8 +150,6 @@ public:
 
         _i2sBufDescCount = (_i2sBufferSize / _is2BufMaxBlockSize) + 1 + 2; // need two more for state/latch blocks
         _i2sBufDesc = (slc_queue_item*)heap_caps_malloc(_i2sBufDescCount * sizeof(slc_queue_item), MALLOC_CAP_DMA);
-
-        s_this = this; // store this for the ISR
     }
 
     NeoEsp8266DmaMethodBase(uint8_t pin, uint16_t pixelCount, size_t elementSize) : NeoEsp8266DmaMethodBase(pixelCount, elementSize)
@@ -252,7 +245,7 @@ public:
         SET_PERI_REG_MASK(SLC_RX_LINK, ((uint32_t)&_i2sBufDesc[0]) & SLC_RXLINK_DESCADDR_MASK);
         
         //Attach the DMA interrupt
-        ETS_SLC_INTR_ATTACH(i2s_slc_isr, NULL);
+        ETS_SLC_INTR_ATTACH(i2s_slc_isr, this);
         //Enable DMA operation intr
         WRITE_PERI_REG(SLC_INT_ENA,  SLC_RX_EOF_INT_ENA);
         //clear any interrupt flags that are set
@@ -326,8 +319,6 @@ public:
     }
 
 private:
-    static NeoEsp8266DmaMethodBase* s_this; // for the ISR
-
     size_t    _pixelsSize;    // Size of '_pixels' buffer 
     uint8_t*  _pixels;        // Holds LED color values
 
@@ -359,6 +350,9 @@ private:
         
         if (slc_intr_status & SLC_RX_EOF_INT_ST) {
             ETS_SLC_INTR_DISABLE();
+            
+            NeoEsp8266DmaMethodBase* s_this = static_cast<NeoEsp8266DmaMethodBase*>(arg);
+            
             switch (s_this->_dmaState) {
                 case NeoDmaState_Idle:
                     break;
@@ -429,9 +423,6 @@ private:
         gpio_config(&io_out_conf);
     }
 };
-
-template<typename T_SPEED> 
-NeoEsp8266DmaMethodBase<T_SPEED>* NeoEsp8266DmaMethodBase<T_SPEED>::s_this;
 
 typedef NeoEsp8266DmaMethodBase<NeoEsp8266DmaSpeedWs2812x> NeoEsp8266DmaWs2812xMethod;
 typedef NeoEsp8266DmaMethodBase<NeoEsp8266DmaSpeedSk6812> NeoEsp8266DmaSk6812Method;
