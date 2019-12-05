@@ -57,7 +57,7 @@ public:
 
     ~NeoBufferMethod()
     {
-        free(_pixels);
+        this->free(_pixels);
     }
 
     operator NeoBufferContext<T_COLOR_FEATURE>()

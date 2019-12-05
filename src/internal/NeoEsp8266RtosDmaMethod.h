@@ -25,7 +25,7 @@ License along with NeoPixel.  If not, see
 
 #pragma once
 
-#ifdef CONFIG_TARGET_PLATFORM_ESP8266
+#if defined(CONFIG_TARGET_PLATFORM_ESP8266) || defined(CONFIG_IDF_TARGET_ESP8266)
 
 #include <esp_attr.h>
 #include <driver/gpio.h>

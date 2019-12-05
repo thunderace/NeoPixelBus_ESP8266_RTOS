@@ -65,7 +65,7 @@ public:
 
     ~NeoDib()
     {
-        free((uint8_t*)_pixels);
+        this->free((uint8_t*)_pixels);
     }
 
     T_COLOR_OBJECT* Pixels() const

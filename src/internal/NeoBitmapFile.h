@@ -129,8 +129,8 @@ public:
         }
 
         // save the interesting information
-        _width = abs(bmpInfoHeader.Width);
-        _height = abs(bmpInfoHeader.Height);
+        _width = this->abs(bmpInfoHeader.Width);
+        _height = this->abs(bmpInfoHeader.Height);
         _fileAddressPixels = bmpHeader.PixelAddress;
         // negative height means rows are top to bottom
         _bottomToTop = (bmpInfoHeader.Height > 0);
